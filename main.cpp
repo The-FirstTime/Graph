@@ -19,4 +19,5 @@ int main(){
     n.view();
     std::ofstream out("out.gv");
     n.RenderDot(out);
+
 }
