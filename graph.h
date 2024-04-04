@@ -1,41 +1,96 @@
-//
-// Created by Арсений  Ростовщиков on 11.02.2024.
-//
-
-#ifndef GRAPH_GRAPH_H
-#define GRAPH_GRAPH_H
-
-#endif //GRAPH_GRAPH_H
-
-#include <unordered_map>
 #include <iostream>
+#include <unordered_map>
+#include <utility>
+#include <ostream>
+#pragma once
+using namespace std;
 
 namespace graph{
-    template<typename key_type, typename value_type, typename weight_type>
-    class Graph{
+
+    template <typename Key, typename Value, typename Weight>
+    class Graph {
     public:
-        key_type key;
-        value_type value;
-        weight_type weight;
 
-        class Node{
-        public:
-            value_type value;
-            std::unordered_map<key_type, weight_type> edges;
-        };
+        typedef Key key_type;
+        typedef Value value_type;
+        typedef Weight weight_type;
+        class Node;
+        typedef typename unordered_map<key_type, Node>::iterator iterator;
+        typedef typename unordered_map<key_type, Node>::const_iterator const_iterator;
 
-        void addNode(const key_type& key, const value_type& value)
-        {
-            nodes[key] = Node{value};
-        }
+        Graph();
+        Graph(const Graph &other);
+        Graph(Graph &&other);
 
-        void addEdge(const key_type& from, const key_type& to, const weight_type& weight)
-        {
-            nodes[from].edges[to] = weight;
-        }
+        Graph& operator=(const Graph &copy);
+        Graph& operator=(Graph &&moved);
+        value_type& operator[](key_type k) const;
+
+        bool empty();
+        size_t size();
+        void clear();
+
+        iterator begin();
+        const_iterator cbegin();
+        iterator end();
+        const_iterator cend();
+
+        void swap(Graph &graph2);
+
+        template <typename Key2, typename Value2, typename Weight2>
+        friend void swap(Graph<Key2, Value2, Weight2> &g1, Graph<Key2, Value2, Weight2> &g2);
+
+        value_type& at(key_type k);
+        size_t degree_in(key_type k);
+        size_t degree_out(key_type k);
+        bool loop(key_type k);
+
+        std::pair<Graph::iterator, bool> insert_node(key_type k, value_type v);
+        std::pair<Graph::iterator, bool> insert_or_assign_node(key_type k, value_type v);
+        pair<typename Graph<Key, Value, Weight>::Node::iterator, bool> insert_edge(std::initializer_list<key_type> keys_from_to, weight_type W);
+        pair<typename Graph<Key, Value, Weight>::Node::iterator, bool> insert_or_assign_edge(std::initializer_list<key_type> keys_from_to, weight_type W);
+
+        void view();
+        size_t delete_node(key_type k);
+        void RenderDot(std::ostream& out);
+
 
     private:
-        std::unordered_map<key_type, Node> nodes;
+        unordered_map<key_type, Node> vertices;
     };
-}
 
+
+
+    template <typename Key, typename Value, typename Weight>
+    class Graph<Key, Value, Weight>::Node{
+    private:
+        friend Graph;
+        value_type values = 0;
+        unordered_map<Key, Weight> edges;
+
+    public:
+        Node();
+        Node(value_type);
+        Node(const Node &other);
+        Node(Node &&other);
+
+        Node& operator=(const Node &copy);
+        Node& operator=(Node &&moved);
+
+        bool empty();
+        size_t size();
+        value_type& value();
+        const value_type& value() const;
+        void clear();
+
+        typedef typename unordered_map<key_type, weight_type>::iterator iterator;
+        typedef typename unordered_map<key_type, weight_type>::const_iterator const_iterator;
+
+        iterator begin();
+        const_iterator cbegin();
+        iterator end();
+        const_iterator cend();
+    };
+};
+
+#include "Graph.hpp"
